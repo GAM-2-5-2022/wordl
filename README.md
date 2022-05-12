@@ -1,2 +1,2 @@
-# wordle
+# wordl
 wordle clone slay
