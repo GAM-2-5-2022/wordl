@@ -14,15 +14,16 @@ end = False
 def check():
     global user_text
     global temp_state
+    global end
+    global guess
     user_text = user_text.lower()
-    print(user_text)
-    print(answer)
     if len(user_text) < 5:
         return -1
-##    elif user_text not in words:
-##        return -1
-    elif user_text == answer:
-        temp_state[0:5] = 1
+    elif user_text + '\n' not in words:
+        return -1
+    elif user_text + '\n' == answer:
+        for i in range(5):
+            temp_state[i] = 1
         end = True
         return 1
     else:
@@ -61,6 +62,7 @@ answer = random.choice(words)
 print(answer)
 
 font = pygame.font.Font(None,60)
+endfont = pygame.font.Font(None,30)
 
 screen = pygame.display.set_mode((350,390))
 width = screen.get_width()
@@ -71,22 +73,37 @@ while running:
 
     mouse = pygame.mouse.get_pos()
     for event in pygame.event.get():
+        if end == False:
+            if event.type == pygame.KEYDOWN:
+                if end == False:
+                    if event.key == pygame.K_BACKSPACE:
+                        user_text = user_text[:-1]
+                    elif (len(user_text) < 5) & (event.key != pygame.K_RETURN):
+                        user_text += event.unicode
+                    elif event.key == pygame.K_RETURN:
+                        if check() == 0:
+                            print(check())
+                            update_state()
+                            guess += 1
+                        elif check() != -1:
+                            print(check())
+                            update_state()
+                        
+        elif end == True:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if width/3 <= mouse[0] <= 2*width/3 and 2*height/5 >= mouse[1] >= height/5:
+                    state = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+                    old_guesses = []
+                    user_text = ''
+                    end = False
+                    guess = 0
+                    answer = random.choice(words)
+                    print(answer)
+                if width/3 <= mouse[0] <= 2*width/3 and 4*height/5 >= mouse[1] >= 3*height/5:
+                    pygame.quit()
+        
         if event.type == pygame.QUIT:
-            pygame.quit()
-        if event.type == pygame.KEYDOWN:
-            if end == False:
-                if event.key == pygame.K_BACKSPACE:
-                    user_text = user_text[:-1]
-                elif (len(user_text) < 5) & (event.key != pygame.K_RETURN):
-                    user_text += event.unicode
-                elif event.key == pygame.K_RETURN:
-                    print(check())
-                    update_state()
-                    guess += 1
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if width/3 <= mouse[0] <= 2*width/3 and 2*height/5 >= mouse[1] >= height/5:
-                if end == True:
-                    print("slay")
+                pygame.quit()
             
     
     screen.fill((255,255,255))
@@ -129,8 +146,16 @@ while running:
               
         else:
             pygame.draw.rect(screen,(100,100,100),[width/3,3*height/5,width/3,height/5])
+        gameover = font.render("GAME OVER", True, (0,0,0))
+        screen.blit(gameover, (width/7, 4*height/9))
+        play = endfont.render("PLAY", True, (255,255,255))
+        screen.blit(play, (0.42*width, 0.25*height))
+        again = endfont.render("AGAIN", True, (255,255,255))
+        screen.blit(again, (0.4*width, 0.3*height))
+        ex = endfont.render("EXIT", True, (255,255,255))
+        screen.blit(ex, (0.42*width,0.67*height))
 
-    
+        
     pygame.display.flip()
 
 f.close()
