@@ -10,11 +10,13 @@ old_guesses = []
 state = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 temp_state = [0,0,0,0,0]
 end = False
+win = False
 
 def check():
     global user_text
     global temp_state
     global end
+    global win
     global guess
     user_text = user_text.lower()
     if len(user_text) < 5:
@@ -25,6 +27,7 @@ def check():
         for i in range(5):
             temp_state[i] = 1
         end = True
+        win = True
         return 1
     else:
         for i in range(5):
@@ -56,10 +59,7 @@ yellow = pygame.image.load("yellow.png")
 gray = pygame.image.load("gray.png")
 border = pygame.image.load("border.png")
 
-
-
 answer = random.choice(words)
-print(answer)
 
 font = pygame.font.Font(None,60)
 endfont = pygame.font.Font(None,30)
@@ -71,6 +71,10 @@ height = screen.get_height()
 running = True
 while running:
 
+    if guess > 5:
+        end = True
+        win = False
+    
     mouse = pygame.mouse.get_pos()
     for event in pygame.event.get():
         if end == False:
@@ -82,11 +86,9 @@ while running:
                         user_text += event.unicode
                     elif event.key == pygame.K_RETURN:
                         if check() == 0:
-                            print(check())
                             update_state()
                             guess += 1
                         elif check() != -1:
-                            print(check())
                             update_state()
                         
         elif end == True:
@@ -135,6 +137,8 @@ while running:
     screen.blit(surface, (33,64*guess+10))
 
     if end == True:
+        pygame.draw.rect(screen,(230,230,230),[width/7-20,height/5-20,5*width/7+40,3*height/5+40])
+        
         if width/3 <= mouse[0] <= 2*width/3 and 2*height/5 >= mouse[1] >= height/5:
             pygame.draw.rect(screen,(170,170,170),[width/3,height/5,width/3,height/5])
               
@@ -146,8 +150,15 @@ while running:
               
         else:
             pygame.draw.rect(screen,(100,100,100),[width/3,3*height/5,width/3,height/5])
-        gameover = font.render("GAME OVER", True, (0,0,0))
-        screen.blit(gameover, (width/7, 4*height/9))
+
+        won = font.render("SLAY", True, (0,0,0))
+        lost = font.render("LUZER HAH", True, (0,0,0))
+        correct = endfont.render("("+answer[:-1]+")", True, (0,0,0))
+        if win:
+            screen.blit(won, (width/3, 4*height/9))
+        else:
+            screen.blit(lost, (width/7, 4*height/9))
+            screen.blit(correct, (0.4*width, 0.54*height))
         play = endfont.render("PLAY", True, (255,255,255))
         screen.blit(play, (0.42*width, 0.25*height))
         again = endfont.render("AGAIN", True, (255,255,255))
